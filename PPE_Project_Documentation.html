@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPE Watch — Project Documentation</title>
+<style>
+  :root { --accent: #F59E0B; --bg: #0F0F1A; --surface: #1E1E2E; --border: #3A3A4C; --text: #E5E7EB; --muted: #9CA3AF; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 2.2rem; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 12px; margin: 32px 0 20px; }
+  h2 { font-size: 1.5rem; color: var(--accent); border-left: 4px solid var(--accent); padding-left: 14px; margin: 36px 0 14px; }
+  h3 { font-size: 1.15rem; color: #FCD34D; margin: 24px 0 10px; }
+  h4 { font-size: 1rem; color: #93C5FD; margin: 18px 0 8px; }
+  p { margin: 10px 0; color: var(--text); }
+  a { color: var(--accent); }
+  code { background: #2A2A3E; color: #FCD34D; padding: 2px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 0.875em; }
+  pre { background: #12121E; border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; margin: 16px 0; }
+  pre code { background: none; color: #A5F3FC; padding: 0; font-size: 0.85rem; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+  th { background: #2A2A3E; color: var(--accent); padding: 10px 14px; text-align: left; border: 1px solid var(--border); }
+  td { padding: 9px 14px; border: 1px solid var(--border); color: var(--text); }
+  tr:nth-child(even) td { background: #1A1A2A; }
+  tr:hover td { background: #252535; }
+  ul { margin: 10px 0 10px 28px; }
+  li { margin: 6px 0; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  blockquote { border-left: 3px solid var(--accent); background: #1A1A2A; padding: 12px 18px; margin: 14px 0; border-radius: 0 6px 6px 0; color: var(--muted); }
+  strong { color: #FCD34D; }
+  .header-banner { background: linear-gradient(135deg, #1E1E2E 0%, #12121E 100%); border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin-bottom: 40px; text-align: center; }
+  .header-banner h1 { border: none; margin: 0 0 8px; font-size: 2.4rem; }
+  .header-banner p { color: var(--muted); font-size: 1rem; margin: 0; }
+  .badge { display: inline-block; background: var(--accent); color: #000; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin: 0 4px; }
+  @media print {
+    body { background: #fff !important; color: #111 !important; }
+    h1, h2, h3, h4 { color: #B45309 !important; }
+    code { background: #f3f4f6 !important; color: #92400e !important; }
+    pre { background: #f9fafb !important; border-color: #d1d5db !important; }
+    pre code { color: #1e3a5f !important; }
+    table th { background: #fef3c7 !important; color: #92400e !important; }
+    td { border-color: #d1d5db !important; }
+    blockquote { background: #fef9c3 !important; border-color: #B45309 !important; }
+    .header-banner { background: #fff8e1 !important; border-color: #B45309 !important; }
+    strong { color: #B45309 !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header-banner">
+  <h1>&#129398; PPE Watch</h1>
+  <p>AI-Powered PPE Compliance Detection System &mdash; Full Project Documentation</p>
+  <p style="margin-top:12px">
+    <span class="badge">FastAPI</span>
+    <span class="badge">YOLOv8n</span>
+    <span class="badge">React 18</span>
+    <span class="badge">SQLite</span>
+    <span class="badge">Docker</span>
+  </p>
+</div>
+<h1>PPE Watch — AI Compliance Detection System</h1>
+<h2>Comprehensive Project Documentation</h2>
+<hr>
+<h2>1. Project Overview</h2>
+<p><strong>PPE Watch</strong> is a full-stack, real-time Personal Protective Equipment (PPE) compliance detection system built for industrial safety monitoring in construction sites, manufacturing plants, and similar environments. It uses a fine-tuned <strong>YOLOv8n</strong> deep-learning model to automatically detect whether workers are wearing required safety gear — and flags violations instantly.</p>
+<h3>Core Capabilities</h3>
+<table>
+<tr><th>Capability</th><th>Description</th></tr>
+<tr><td>Real-time PPE Detection</td><td>Analyze uploaded images and videos for PPE compliance</td></tr>
+<tr><td>Person-level Compliance</td><td>Links PPE items to individual workers via bounding box IoU matching</td></tr>
+<tr><td>Zone-based Enforcement</td><td>Draw custom polygon zones with per-zone PPE requirements</td></tr>
+<tr><td>Automated Incident Logging</td><td>Saves violation records with JPEG thumbnail crops to SQLite</td></tr>
+<tr><td>Live Streaming Dashboard</td><td>WebSocket-driven real-time overlays while video processes</td></tr>
+<tr><td>Configurable Sensitivity</td><td>Global and per-class confidence thresholds + frame sampling rate</td></tr>
+<tr><td>CSV Export</td><td>Download the full violations log as an audit report</td></tr>
+</table>
+<hr>
+<h2>2. System Architecture</h2>
+<pre><code class="language-">
+┌──────────────────────────────────────────┐         ┌──────────────────────────────────────────┐
+│         React 18 + Vite Frontend          │         │        FastAPI Backend (Python 3.11)      │
+│                                          │         │                                           │
+│  ┌─────────────┐  ┌──────────────────┐  │ HTTP    │  ┌────────────────────────────────────┐  │
+│  │  Dashboard  │  │  Violations Log  │  │◄──────►│  │   YOLOv8n Inference (Ultralytics)  │  │
+│  └─────────────┘  └──────────────────┘  │ REST    │  └────────────────────────────────────┘  │
+│  ┌─────────────┐  ┌──────────────────┐  │         │  ┌────────────────────────────────────┐  │
+│  │ LiveMonitor │  │   ZoneConfig     │  │◄──WS──►│  │  Person-PPE IoU Association        │  │
+│  └─────────────┘  └──────────────────┘  │         │  └────────────────────────────────────┘  │
+│  ┌─────────────┐                        │         │  ┌────────────────────────────────────┐  │
+│  │  Settings   │  Axios + WebSocket API │         │  │  Zone Compliance (Ray-Casting)     │  │
+│  └─────────────┘                        │         │  └────────────────────────────────────┘  │
+└──────────────────────────────────────────┘         │  ┌────────────────────────────────────┐  │
+                                                     │  │  SQLite Database (aiosqlite)       │  │
+                                                     │  └────────────────────────────────────┘  │
+                                                     └──────────────────────────────────────────┘
+                                                                          │
+                                                                     loads model
+                                                                          ▼
+                                                          ┌───────────────────────────┐
+                                                          │      models/best.pt       │
+                                                          │  Fine-tuned YOLOv8n       │
+                                                          └───────────────────────────┘
+</code></pre>
+<p><strong>Communication Protocols:</strong></p>
+<ul>
+<li><strong>HTTP REST</strong> — for image upload, zone CRUD, violations query, settings, dashboard stats</li>
+<li><strong>WebSocket</strong> — for real-time per-frame detection streaming during video processing</li>
+</ul>
+<hr>
+<h2>3. Technology Stack</h2>
+<h3>Backend</h3>
+<table>
+<tr><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+<tr><td>Python</td><td>3.10 / 3.11</td><td>Runtime</td></tr>
+<tr><td>FastAPI</td><td>≥0.104.0</td><td>Async web framework & REST API</td></tr>
+<tr><td>Uvicorn</td><td>≥0.24.0</td><td>ASGI server</td></tr>
+<tr><td>Ultralytics (YOLOv8)</td><td>≥8.0.0</td><td>Object detection inference engine</td></tr>
+<tr><td>OpenCV (`opencv-python-headless`)</td><td>≥4.8.0</td><td>Video/image decoding, thumbnail cropping</td></tr>
+<tr><td>aiosqlite</td><td>≥0.19.0</td><td>Async SQLite ORM</td></tr>
+<tr><td>Pillow</td><td>≥10.0.0</td><td>Image utilities</td></tr>
+<tr><td>NumPy</td><td>≥1.24.0</td><td>Array operations for bounding boxes</td></tr>
+<tr><td>python-multipart</td><td>≥0.0.6</td><td>File upload form parsing</td></tr>
+</table>
+<h3>Frontend</h3>
+<table>
+<tr><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+<tr><td>React</td><td>18.x</td><td>UI library</td></tr>
+<tr><td>Vite</td><td>5.x</td><td>Build tool & dev server</td></tr>
+<tr><td>React Router DOM</td><td>6.x</td><td>SPA routing</td></tr>
+<tr><td>Axios</td><td>1.x</td><td>HTTP client</td></tr>
+<tr><td>Recharts</td><td>2.x</td><td>Dashboard charts</td></tr>
+<tr><td>Lucide React</td><td>0.294+</td><td>Icon components</td></tr>
+<tr><td>TailwindCSS</td><td>3.3+</td><td>Utility-first styling</td></tr>
+</table>
+<h3>Infrastructure</h3>
+<table>
+<tr><th>Technology</th><th>Purpose</th></tr>
+<tr><td>Docker & Docker Compose</td><td>Containerized deployment</td></tr>
+<tr><td>Nginx</td><td>Frontend static file serving + SPA routing in production</td></tr>
+<tr><td>SQLite</td><td>Embedded database (no external DB server required)</td></tr>
+</table>
+<hr>
+<h2>4. Repository Structure</h2>
+<pre><code class="language-">
+PPE project/
+├── backend/                     # FastAPI backend service
+│   ├── main.py                  # App entry point: CORS, lifespan, router registration
+│   ├── config.py                # Class maps, paths, default thresholds
+│   ├── database.py              # All async SQLite operations (aiosqlite)
+│   ├── detection.py             # YOLO inference, IoU matching, zone polygon checks
+│   ├── requirements.txt         # Python package dependencies
+│   ├── Dockerfile               # Backend container definition
+│   ├── .env.example             # Environment variable template
+│   ├── ppe_compliance.db        # SQLite database (auto-created at runtime)
+│   ├── thumbnails/              # Auto-saved violation JPEG crops (runtime)
+│   ├── uploads/                 # Uploaded video/image files (runtime)
+│   └── routers/
+│       ├── __init__.py
+│       ├── detect.py            # POST /api/detect/image and /video, job management
+│       ├── ws.py                # WebSocket /ws/video-stream/{job_id}
+│       ├── zones.py             # CRUD /api/zones
+│       ├── violations.py        # GET/DELETE/export /api/violations
+│       ├── dashboard.py         # GET /api/compliance-summary
+│       └── settings.py          # GET/PUT /api/settings
+│
+├── frontend/                    # Vite + React frontend
+│   ├── src/
+│   │   ├── App.jsx              # Root component with React Router routes
+│   │   ├── main.jsx             # React DOM render entry point
+│   │   ├── index.css            # Global CSS & Tailwind imports
+│   │   ├── api/
+│   │   │   └── client.js        # Axios instance + all API call functions + WS connector
+│   │   ├── config/
+│   │   │   └── constants.js     # API_BASE, WS_BASE, class names, colors
+│   │   ├── components/
+│   │   │   ├── Layout.jsx       # App shell: sidebar nav + &lt;Outlet&gt;
+│   │   │   ├── StatCard.jsx     # Reusable KPI card component
+│   │   │   ├── EmptyState.jsx   # Empty/error placeholder UI
+│   │   │   └── Toast.jsx        # Toast notification system (Context + hook)
+│   │   └── pages/
+│   │       ├── Dashboard.jsx    # Analytics overview with Recharts
+│   │       ├── LiveMonitor.jsx  # File upload, video/image detection, canvas overlay
+│   │       ├── ZoneConfig.jsx   # Interactive polygon zone drawing on canvas
+│   │       ├── ViolationsLog.jsx # Paginated violations table with filters & CSV export
+│   │       └── Settings.jsx     # Detection threshold sliders
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── tailwind.config.js
+│   ├── nginx.conf               # Nginx config for SPA routing in production
+│   ├── Dockerfile               # Multi-stage build: Node → Nginx
+│   └── .env.example
+│
+├── models/
+│   ├── best.pt                  # Fine-tuned YOLOv8n weights (10 classes)
+│   └── README.md
+│
+├── training/
+│   ├── args.yaml                # Ultralytics training hyperparameters
+│   ├── classes.json             # Class index → name mapping (nc: 10)
+│   ├── data_subset.yaml         # Dataset YAML (paths, nc, names)
+│   ├── confusion_matrix.png     # Class-level confusion matrix
+│   ├── confusion_matrix_normalized.png
+│   ├── results.csv              # Epoch-by-epoch training metrics
+│   ├── results.png              # mAP, loss curves chart
+│   └── README.md
+│
+├── docs/
+│   └── SETTINGS.md              # Detection settings & threshold guidance
+│
+├── docker-compose.yml           # Full-stack orchestration
+├── .env.example                 # Root environment template
+├── .gitignore
+└── README.md
+</code></pre>
+<hr>
+<h2>5. The Detection Model</h2>
+<h3>Model: YOLOv8n (Nano)</h3>
+<ul>
+<li><strong>Architecture</strong>: YOLOv8n — the smallest/fastest variant of Ultralytics YOLOv8</li>
+<li><strong>Weights file</strong>: <code>models/best.pt</code></li>
+<li><strong>Number of classes</strong>: 10</li>
+</ul>
+<h3>Class Reference Table</h3>
+<table>
+<tr><th>Index</th><th>Class Name</th><th>Category</th><th>Meaning</th></tr>
+<tr><td>0</td><td>`Hardhat`</td><td>PPE Positive</td><td>Safety helmet detected on a person</td></tr>
+<tr><td>1</td><td>`Mask`</td><td>PPE Positive</td><td>Protective face mask detected</td></tr>
+<tr><td>2</td><td>`NO-Hardhat`</td><td>**Violation**</td><td>Person's head visible without a hardhat</td></tr>
+<tr><td>3</td><td>`NO-Mask`</td><td>**Violation**</td><td>Person's face visible without a mask</td></tr>
+<tr><td>4</td><td>`NO-Safety Vest`</td><td>**Violation**</td><td>Person's torso visible without a high-vis vest</td></tr>
+<tr><td>5</td><td>`Person`</td><td>Entity</td><td>A human worker</td></tr>
+<tr><td>6</td><td>`Safety Cone`</td><td>Environment</td><td>Traffic/hazard cone</td></tr>
+<tr><td>7</td><td>`Safety Vest`</td><td>PPE Positive</td><td>High-visibility reflective vest detected</td></tr>
+<tr><td>8</td><td>`machinery`</td><td>Environment</td><td>Heavy equipment (excavators, cranes, etc.)</td></tr>
+<tr><td>9</td><td>`vehicle`</td><td>Environment</td><td>Work trucks, cars, etc.</td></tr>
+</table>
+<h3>Class Mappings (in `config.py`)</h3>
+<pre><code class="language-python">
+PPE_POSITIVE     = {0: 'Hardhat',        1: 'Mask', 7: 'Safety Vest'}
+PPE_NEGATIVE     = {2: 'NO-Hardhat', 3: 'NO-Mask', 4: 'NO-Safety Vest'}
+VIOLATION_TO_REQUIRED = {2: 0, 3: 1, 4: 7}  # violation ID → required PPE ID
+ENTITY_CLASSES   = {5: 'Person'}
+ENVIRONMENT_CLASSES = {6: 'Safety Cone', 8: 'machinery', 9: 'vehicle'}
+</code></pre>
+<hr>
+<h2>6. Backend — Deep Dive</h2>
+<h3>6.1 Entry Point: `main.py`</h3>
+<p>The app uses FastAPI's <strong>lifespan context manager</strong> for startup/shutdown:</p>
+<li>**Startup**: Initializes the SQLite database (`init_db()`), creates `uploads/` and `thumbnails/` directories, and loads the YOLO model into `app.state.model`.</li>
+<li>**Shutdown**: Graceful (no-op currently).</li>
+<p><strong>CORS</strong> is configured via the <code>CORS_ORIGINS</code> env var (comma-separated), defaulting to <code>localhost:5173</code>, <code>localhost:3000</code>, and <code>localhost:8080</code>.</p>
+<p><strong>Static file mounts</strong>: <code>/thumbnails</code> and <code>/uploads</code> are served as static file directories.</p>
+<p><strong>Router registration order</strong>:</p>
+<pre><code class="language-python">
+app.include_router(detect.router)   # /api/detect/*
+app.include_router(ws.ws_router)    # /ws/*
+app.include_router(zones.router)    # /api/zones/*
+app.include_router(violations.router) # /api/violations/*
+app.include_router(dashboard.router)  # /api/*
+app.include_router(settings.router)   # /api/settings/*
+</code></pre>
+<hr>
+<h3>6.2 Core Detection Logic: `detection.py`</h3>
+<p>This is the computational heart of the system. All functions operate on raw numpy arrays.</p>
+<h4>`run_inference(image_array, model, conf_threshold, per_class_thresholds)`</h4>
+<ul>
+<li>Runs YOLO on the image, filters detections by confidence.</li>
+<li>Supports <strong>per-class confidence thresholds</strong> — if a class has a specific override, it uses that; otherwise falls back to the global <code>conf_threshold</code>.</li>
+<li>Returns: <code>[{class_id, class_name, confidence, bbox: [x1,y1,x2,y2]}, ...]</code></li>
+</ul>
+<h4>`calculate_iou(box1, box2)` & `calculate_containment(box1, box2)`</h4>
+<ul>
+<li>IoU (Intersection over Union): standard overlap ratio.</li>
+<li><strong>Containment</strong>: intersection area ÷ *smaller* box's area. This catches nested boxes (e.g. a tight torso box fully inside a full-body person box) where standard IoU stays low even though the overlap is nearly 100%.</li>
+</ul>
+<h4>`nms_persons(person_detections, iou_threshold=0.35, containment_threshold=0.7)`</h4>
+<ul>
+<li>Secondary Non-Maximum Suppression just for <code>Person</code> class.</li>
+<li>YOLO's built-in NMS can let duplicate person boxes slip through for the same physical person. This catches them using <strong>both</strong> IoU and containment signals.</li>
+<li>Keeps only the highest-confidence box per physical person.</li>
+</ul>
+<h4>`associate_ppe_to_persons(detections, min_person_conf=0.45)`</h4>
+<ul>
+<li>Groups all detections into <code>persons</code> and <code>ppe_items</code>.</li>
+<li>For each person, checks every PPE item: if <code>IoU > 0.3</code> <strong>OR</strong> the center of the PPE box falls inside the person box → the PPE belongs to that worker.</li>
+<li>Builds per-worker compliance card:</li>
+</ul>
+<p>  <code>`</code>python</p>
+<p>  {</p>
+<p>    "person_bbox": [...],</p>
+<p>    "person_confidence": float,</p>
+<p>    "wearing": ["Hardhat", "Safety Vest"],  # PPE_POSITIVE matches</p>
+<p>    "missing": ["Mask"],                    # Required items not found</p>
+<p>    "violations": ["NO-Mask"],              # PPE_NEGATIVE matches</p>
+<p>    "compliant": bool</p>
+<p>  }</p>
+<p>  <code>`</code></p>
+<h4>`point_in_polygon(point, polygon)`</h4>
+<ul>
+<li><strong>Ray-casting algorithm</strong> for point-in-polygon test.</li>
+<li>Works with normalized coordinates (0–1), where <code>point</code> is <code>(cx, cy)</code> and <code>polygon</code> is a list of <code>{x, y}</code> dicts.</li>
+</ul>
+<h4>`apply_zone_scoped_compliance(persons, zones, frame_width, frame_height)`</h4>
+<p>This is a critical correctness fix. Without it, a worker could be flagged for "missing Mask" even if the zone they're in only requires a Hardhat.</p>
+<ul>
+<li>For each worker, uses their <strong>bottom-center point</strong> (foot position) to determine which zones they stand in.</li>
+<li>Workers inside a zone: compliance is re-evaluated <strong>only</strong> against that zone's <code>required_ppe</code> list.</li>
+<li>Workers outside any zone: original model-detected violations apply.</li>
+</ul>
+<h4>`check_zone_violations(persons, zones, frame_width, frame_height)`</h4>
+<ul>
+<li>Generates <code>violation_events</code> — one entry per missing PPE item per zone per person.</li>
+<li>These feed the <code>log_violation()</code> database call with a proper <code>zone_id</code> and <code>zone_name</code>.</li>
+</ul>
+<h4>`calculate_compliance_rate(persons)` → `0.0–100.0`</h4>
+<ul>
+<li>Returns <code>100.0</code> if no persons detected (no one to violate).</li>
+</ul>
+<h4>`generate_thumbnail(frame, bbox, output_dir, prefix='violation')`</h4>
+<ul>
+<li>Crops <code>bbox</code> with <strong>20% padding</strong> on all sides.</li>
+<li>Saves a uniquely-named JPEG (<code>violation_{8char-uuid}.jpg</code>) to <code>THUMBNAIL_DIR</code>.</li>
+</ul>
+<hr>
+<h3>6.3 Database Layer: `database.py`</h3>
+<p>Uses <strong>aiosqlite</strong> (async SQLite) throughout. All functions are <code>async</code>.</p>
+<h4>Tables</h4>
+<table>
+<tr><th>Table</th><th>Key Columns</th><th>Purpose</th></tr>
+<tr><td>`zones`</td><td>id, name, camera_id, polygon_points (JSON), required_ppe (JSON), created_at</td><td>Safety zone definitions</td></tr>
+<tr><td>`violations`</td><td>id, timestamp, class_name, confidence, zone_id, zone_name, bbox (JSON), thumbnail_path, frame_number, video_filename</td><td>Individual violation incidents</td></tr>
+<tr><td>`settings`</td><td>key (PK), value</td><td>Key-value store for system config</td></tr>
+<tr><td>`stats`</td><td>date (PK), total_persons, total_compliant</td><td>Daily aggregated compliance counters</td></tr>
+<tr><td>`video_jobs`</td><td>job_id (PK), filename, filepath, camera_id, status, created_at, completed_at</td><td>Video upload job tracking</td></tr>
+</table>
+<h4>Migration</h4>
+<p>On every startup, attempts <code>ALTER TABLE video_jobs ADD COLUMN camera_id</code> — silently fails if it already exists. This handles older databases.</p>
+<h4>Key Functions</h4>
+<table>
+<tr><th>Function</th><th>Description</th></tr>
+<tr><td>`init_db()`</td><td>Creates all tables, inserts default settings if absent</td></tr>
+<tr><td>`create_zone / get_zones / update_zone / delete_zone`</td><td>Full CRUD for zones</td></tr>
+<tr><td>`get_zones(camera_id=None)`</td><td>Optionally scoped to one camera ID</td></tr>
+<tr><td>`log_violation(...)`</td><td>Inserts a new violation record</td></tr>
+<tr><td>`get_violations(page, page_size, date_from, date_to, class_name, zone_id)`</td><td>Paginated, filtered query</td></tr>
+<tr><td>`get_violations_for_export()`</td><td>All violations for CSV export</td></tr>
+<tr><td>`get_violation_stats_today()`</td><td>Count of today's violations</td></tr>
+<tr><td>`get_compliance_trend()`</td><td>Hourly violation counts for today</td></tr>
+<tr><td>`get_most_violated_zone_today()`</td><td>Top zone by violation count today</td></tr>
+<tr><td>`get_violations_by_class()`</td><td>Violation counts grouped by class for today</td></tr>
+<tr><td>`update_stats(total_persons, compliant)`</td><td>Upserts daily stat row (cumulative)</td></tr>
+<tr><td>`get_settings / update_settings`</td><td>Read/write the key-value settings table</td></tr>
+<tr><td>`create_video_job / update_video_job_status / get_all_video_jobs`</td><td>Video job lifecycle</td></tr>
+</table>
+<hr>
+<h3>6.4 API Routers</h3>
+<h4>`detect.py` — `/api/detect/*`</h4>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td>`/api/detect/image`</td><td>`POST`</td><td>Upload image, run inference, log violations, return detections + persons + compliance rate</td></tr>
+<tr><td>`/api/detect/video`</td><td>`POST`</td><td>Upload video, create job record (DB + in-memory), return `{job_id}`</td></tr>
+<tr><td>`/api/detect/jobs`</td><td>`GET`</td><td>List all video jobs (from DB, with `file_exists` flag)</td></tr>
+<tr><td>`/api/detect/jobs/pending`</td><td>`GET`</td><td>Jobs still in `pending`/`processing` state; restores them into in-memory index</td></tr>
+<tr><td>`/api/detect/jobs/{job_id}`</td><td>`DELETE`</td><td>Delete job record + uploaded file from disk</td></tr>
+</table>
+<p><strong>Image detection flow:</strong></p>
+<li>Decode bytes → NumPy array with OpenCV</li>
+<li>Load settings (threshold, per-class overrides)</li>
+<li>`run_inference()` → `associate_ppe_to_persons()` → `apply_zone_scoped_compliance()`</li>
+<li>`check_zone_violations()` for zone-specific events</li>
+<li>For every violation: `generate_thumbnail()` → `log_violation()`</li>
+<li>`update_stats()` with person/compliant counts</li>
+<p><strong>Video detection flow:</strong></p>
+<li>Save file to `uploads/` directory</li>
+<li>`create_video_job()` in DB + in-memory `video_jobs` dict</li>
+<li>Return `job_id` immediately (fire-and-forget; actual processing happens over WebSocket)</li>
+<h4>`ws.py` — `/ws/video-stream/{job_id}`</h4>
+<p>WebSocket handler for real-time video processing:</p>
+<li>Accepts connection and looks up `job_id` in the in-memory `video_jobs` dict</li>
+<li>Opens the video file with `cv2.VideoCapture`</li>
+<li>Reads the `frame_sample_rate` setting (processes every Nth frame, default: every 5th)</li>
+<li>For each sampled frame: runs the same inference+compliance pipeline as image detection</li>
+<li>Sends JSON per frame:</li>
+<p>   <code>`</code>json</p>
+<p>   {</p>
+<p>     "type": "frame",</p>
+<p>     "frame_number": 150,</p>
+<p>     "timestamp_sec": 5.0,</p>
+<p>     "detections": [...],</p>
+<p>     "persons": [...],</p>
+<p>     "compliance_rate": 85.0,</p>
+<p>     "violations": [...],</p>
+<p>     "progress": 42.5</p>
+<p>   }</p>
+<p>   <code>`</code></p>
+<li>On completion sends:</li>
+<p>   <code>`</code>json</p>
+<p>   {</p>
+<p>     "type": "complete",</p>
+<p>     "total_frames": 900,</p>
+<p>     "processed_frames": 180,</p>
+<p>     "overall_compliance_rate": 88.3,</p>
+<p>     "total_violations": 12</p>
+<p>   }</p>
+<p>   <code>`</code></p>
+<li>Handles `WebSocketDisconnect` gracefully; releases video capture in `finally`</li>
+<h4>`zones.py` — `/api/zones/*`</h4>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td>`POST /api/zones`</td><td>Create</td><td>Saves a new zone with normalized polygon points and required PPE</td></tr>
+<tr><td>`GET /api/zones`</td><td>List</td><td>Returns all zones; optionally filtered by `?camera_id=`</td></tr>
+<tr><td>`GET /api/zones/cameras`</td><td>List</td><td>Returns distinct camera IDs for picker population</td></tr>
+<tr><td>`PUT /api/zones/{id}`</td><td>Update</td><td>Updates an existing zone</td></tr>
+<tr><td>`DELETE /api/zones/{id}`</td><td>Delete</td><td>Removes a zone</td></tr>
+</table>
+<p><strong>Pydantic Models:</strong></p>
+<ul>
+<li><code>Point { x: float, y: float }</code> — normalized 0–1 coordinates</li>
+<li><code>ZoneCreate / ZoneUpdate { name, camera_id, polygon_points: [Point], required_ppe: [str] }</code></li>
+</ul>
+<h4>`violations.py` — `/api/violations/*`</h4>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td>`GET /api/violations`</td><td>List</td><td>Paginated (page, page_size), filterable by date range, class name, zone ID</td></tr>
+<tr><td>`DELETE /api/violations/{id}`</td><td>Delete</td><td>Removes record + best-effort deletes thumbnail file</td></tr>
+<tr><td>`GET /api/violations/export`</td><td>Export</td><td>Streams CSV of all violations as a file download</td></tr>
+</table>
+<h4>`dashboard.py` — `/api/compliance-summary`</h4>
+<p>Returns a single composite JSON:</p>
+<pre><code class="language-json">
+{
+  "overall_compliance_rate": 87.4,
+  "total_workers_detected": 340,
+  "total_violations": 43,
+  "most_violated_zone": "Loading Dock",
+  "compliance_by_class": [{"class_name": "NO-Hardhat", "count": 28}, ...],
+  "compliance_trend": [{"period": "09:00", "rate": 5}, ...],
+  "recent_violations": [...]
+}
+</code></pre>
+<h4>`settings.py` — `/api/settings`</h4>
+<table>
+<tr><th>Endpoint</th><th>Method</th><th>Description</th></tr>
+<tr><td>`GET /api/settings`</td><td>Read</td><td>Returns all settings as key-value dict</td></tr>
+<tr><td>`PUT /api/settings`</td><td>Update</td><td>Upserts any number of key-value pairs</td></tr>
+</table>
+<p><strong>Persisted Settings:</strong></p>
+<table>
+<tr><th>Key</th><th>Default</th><th>Description</th></tr>
+<tr><td>`confidence_threshold`</td><td>`0.4`</td><td>Global detection confidence filter</td></tr>
+<tr><td>`frame_sample_rate`</td><td>`5`</td><td>Process every Nth frame during video</td></tr>
+<tr><td>`per_class_thresholds`</td><td>`{}`</td><td>Override confidence per class name</td></tr>
+</table>
+<hr>
+<h2>7. Frontend — Deep Dive</h2>
+<h3>7.1 Routing (`App.jsx`)</h3>
+<pre><code class="language-">
+/            → Dashboard.jsx
+/monitor     → LiveMonitor.jsx
+/zones       → ZoneConfig.jsx
+/violations  → ViolationsLog.jsx
+/settings    → Settings.jsx
+</code></pre>
+<p>All routes are wrapped in <code>Layout.jsx</code> (sidebar + top bar shell).</p>
+<h3>7.2 API Client (`src/api/client.js`)</h3>
+<p>An <strong>Axios instance</strong> configured with <code>API_BASE</code> (from env or <code>http://localhost:8000</code>).</p>
+<table>
+<tr><th>Export</th><th>Type</th><th>Description</th></tr>
+<tr><td>`detectImage(file, cameraId)`</td><td>Axios POST</td><td>Multipart form upload for image</td></tr>
+<tr><td>`detectVideo(file, cameraId)`</td><td>Axios POST</td><td>Multipart form upload for video</td></tr>
+<tr><td>`getZones(cameraId?)`</td><td>Axios GET</td><td>Fetch zones, optionally scoped</td></tr>
+<tr><td>`getCameraIds()`</td><td>Axios GET</td><td>Get distinct camera IDs</td></tr>
+<tr><td>`createZone(data)`</td><td>Axios POST</td><td>Create a new zone</td></tr>
+<tr><td>`updateZone(id, data)`</td><td>Axios PUT</td><td>Update a zone</td></tr>
+<tr><td>`deleteZone(id)`</td><td>Axios DELETE</td><td>Delete a zone</td></tr>
+<tr><td>`getViolations(params)`</td><td>Axios GET</td><td>Paginated violation query</td></tr>
+<tr><td>`deleteViolation(id)`</td><td>Axios DELETE</td><td>Delete a single violation</td></tr>
+<tr><td>`exportViolations(params)`</td><td>Axios GET</td><td>CSV blob download</td></tr>
+<tr><td>`getComplianceSummary()`</td><td>Axios GET</td><td>Dashboard composite data</td></tr>
+<tr><td>`getSettings()`</td><td>Axios GET</td><td>Load settings</td></tr>
+<tr><td>`updateSettings(data)`</td><td>Axios PUT</td><td>Save settings</td></tr>
+<tr><td>`connectVideoStream(jobId, onMessage, onClose, onError)`</td><td>WebSocket</td><td>Opens WS, returns the socket</td></tr>
+</table>
+<p><strong>WebSocket URL</strong> is derived from <code>WS_BASE</code> (env var or <code>API_BASE</code> with <code>http</code> → <code>ws</code> substitution).</p>
+<h3>7.3 Pages</h3>
+<h4>`Dashboard.jsx`</h4>
+<ul>
+<li>Polls <code>/api/compliance-summary</code> every <strong>30 seconds</strong>.</li>
+<li>Shows 4 stat cards: <strong>Compliance Rate</strong>, <strong>Person Detections Today</strong>, <strong>Violations Today</strong>, <strong>Most Violated Zone</strong>.</li>
+<li>Two Recharts charts: <strong>Line chart</strong> (violations by hour) and <strong>Horizontal Bar chart</strong> (violations by class).</li>
+<li>Recent violations feed with thumbnail images.</li>
+<li>Shows <code>EmptyState</code> when no data exists yet.</li>
+</ul>
+<h4>`LiveMonitor.jsx`</h4>
+<p>The most complex page. State machine with states: <code>idle → uploading → processing/image-result → complete</code>.</p>
+<p><strong>Camera/Site ID picker</strong>: selects which zones apply. Users can define a new camera ID inline.</p>
+<p><strong>Image mode:</strong></p>
+<li>User drops/selects an image file</li>
+<li>`detectImage()` POST → backend returns detections immediately</li>
+<li>Uses `useEffect` to draw bounding boxes on a `<canvas>` overlaid on the `<img>`</li>
+<li>Uses `getContainLayout()` helper to account for CSS `object-contain` letterboxing so boxes align correctly</li>
+<p><strong>Video mode:</strong></p>
+<li>`detectVideo()` POST → backend saves file, returns `job_id`</li>
+<li>`connectVideoStream(job_id)` opens WebSocket</li>
+<li>`requestAnimationFrame` loop continuously draws `latestFrameRef.current` detections on a `<canvas>` overlaid on `<video>`</li>
+<li>WebSocket messages update `latestFrameRef`, `progress`, `currentPersons`</li>
+<li>Violation toasts shown throttled (only on frames divisible by 25)</li>
+<p><strong>Workers side panel</strong>: shows per-worker compliance status (COMPLIANT / VIOLATION badge), which zone they're in, and a checkmark/cross for each PPE item.</p>
+<p><strong>Canvas drawing</strong> (<code>drawDetectionsOnCanvas</code>):</p>
+<ul>
+<li>Iterates raw detections (not persons)</li>
+<li>Draws colored bounding boxes: yellow for PPE positive, red for violations, gray for Person/environment</li>
+<li>Labels: <code>"ClassName 87%"</code> with color-matched background</li>
+</ul>
+<h4>`ZoneConfig.jsx`</h4>
+<p>Interactive polygon drawing tool.</p>
+<p><strong>Canvas interaction:</strong></p>
+<ul>
+<li>Click to place polygon vertices</li>
+<li>Live preview: dashed line from last point to cursor</li>
+<li>Click within 15px of first point to <strong>close</strong> the polygon</li>
+<li>Undo Point / Clear All buttons</li>
+</ul>
+<p><strong>Reference image</strong>: Upload a camera frame as background — canvas resizes to match its aspect ratio (max 800×600). Polygon coordinates are stored normalized (0–1 relative to canvas size).</p>
+<p><strong>Zone form</strong>: Zone name (required) + checkboxes for Hardhat / Mask / Safety Vest requirements. A live preview shows which PPE items will be saved.</p>
+<p><strong>Camera scoping</strong>: Each zone is tagged with a camera ID. Only zones with a matching camera ID are applied when processing footage from that same camera.</p>
+<p><strong>Saved zones list</strong>: Shows zones for the selected camera. Hover to reveal edit (✏) and delete (🗑) icons.</p>
+<h4>`ViolationsLog.jsx`</h4>
+<p>Paginated table with filter bar.</p>
+<p><strong>Filters</strong>: date range (from/to), violation class dropdown, zone dropdown.</p>
+<p><strong>Table columns</strong>: #, Thumbnail, Timestamp, Class (colored badge), Zone, Confidence %, Frame Number, Delete action.</p>
+<p><strong>Pagination</strong>: 10/25/50 per page selector, prev/next arrows.</p>
+<p><strong>CSV Export</strong>: calls <code>/api/violations/export</code> and triggers browser file download.</p>
+<p><strong>Delete</strong>: removes the record and its thumbnail from the backend; steps back a page if the last item on a non-first page was deleted.</p>
+<h4>`Settings.jsx`</h4>
+<p>Loads current settings on mount. Three controls:</p>
+<li>**Global Confidence Threshold** — Range slider (0.1–0.9, step 0.05). Info callout explains trade-offs.</li>
+<li>**Per-Class Thresholds** — Collapsible section. One slider per class name (0–0.9, step 0.05). Shows "Auto" when 0 (uses global). Highlighted in yellow when overridden.</li>
+<li>**Frame Sampling Rate** — Range slider (1–30). Describes speed vs thoroughness trade-off.</li>
+<p>Saves all via <code>PUT /api/settings</code>.</p>
+<h3>7.4 Components</h3>
+<table>
+<tr><th>Component</th><th>Description</th></tr>
+<tr><td>`Layout.jsx`</td><td>App shell with sidebar navigation links and `<Outlet>` for page content</td></tr>
+<tr><td>`StatCard.jsx`</td><td>Reusable card with icon, title, value, and optional color class</td></tr>
+<tr><td>`EmptyState.jsx`</td><td>Centered placeholder with title and description for no-data states</td></tr>
+<tr><td>`Toast.jsx`</td><td>Toast notification system using React Context. `useToast()` hook exposes `addToast({title, message, type})`. Auto-dismisses after 4 seconds.</td></tr>
+</table>
+<h3>7.5 Constants (`src/config/constants.js`)</h3>
+<pre><code class="language-js">
+API_BASE = env.VITE_API_BASE || 'http://localhost:8000'
+WS_BASE  = env.VITE_WS_BASE  || API_BASE.replace(/^http/, 'ws')
+
+CLASS_NAMES   = ['Hardhat', 'Mask', 'NO-Hardhat', 'NO-Mask', 'NO-Safety Vest',
+                 'Person', 'Safety Cone', 'Safety Vest', 'machinery', 'vehicle']
+
+CLASS_COLORS  = { 'Hardhat': '#F59E0B', 'Mask': '#F59E0B', 'Safety Vest': '#F59E0B',
+                  'NO-Hardhat': '#EF4444', 'NO-Mask': '#EF4444', 'NO-Safety Vest': '#EF4444',
+                  'Person': '#6B7280', ... }
+
+PPE_CLASSES       = ['Hardhat', 'Mask', 'Safety Vest']
+VIOLATION_CLASSES = ['NO-Hardhat', 'NO-Mask', 'NO-Safety Vest']
+</code></pre>
+<hr>
+<h2>8. Database Schema (SQLite)</h2>
+<pre><code class="language-sql">
+CREATE TABLE zones (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    name          TEXT,
+    camera_id     TEXT,
+    polygon_points TEXT,   -- JSON array of {x: float, y: float} (normalized 0-1)
+    required_ppe  TEXT,    -- JSON array of strings e.g. ["Hardhat", "Safety Vest"]
+    created_at    TEXT
+);
+
+CREATE TABLE violations (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp      TEXT,   -- ISO 8601
+    class_name     TEXT,   -- e.g. "NO-Hardhat"
+    confidence     REAL,
+    zone_id        INTEGER,
+    zone_name      TEXT,
+    bbox           TEXT,   -- JSON [x1, y1, x2, y2]
+    thumbnail_path TEXT,   -- filename relative to THUMBNAIL_DIR
+    frame_number   INTEGER,
+    video_filename TEXT
+);
+
+CREATE TABLE settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT
+);
+
+CREATE TABLE stats (
+    date           TEXT PRIMARY KEY,  -- YYYY-MM-DD
+    total_persons  INTEGER,
+    total_compliant INTEGER
+);
+
+CREATE TABLE video_jobs (
+    job_id       TEXT PRIMARY KEY,
+    filename     TEXT,
+    filepath     TEXT,
+    camera_id    TEXT DEFAULT 'default',
+    status       TEXT DEFAULT 'pending',  -- pending | processing | complete | error
+    created_at   TEXT,
+    completed_at TEXT
+);
+</code></pre>
+<hr>
+<h2>9. Data Flow: End-to-End</h2>
+<h3>Image Detection</h3>
+<pre><code class="language-">
+User uploads image
+      ↓
+POST /api/detect/image (multipart)
+      ↓
+cv2.imdecode → numpy array
+      ↓
+run_inference(frame, model, conf_threshold, per_class_thresholds)
+    → YOLO forward pass → filter by threshold
+      ↓
+associate_ppe_to_persons(detections)
+    → separate persons & PPE items
+    → nms_persons() → deduplicate person boxes
+    → IoU + center-inside test → link PPE to persons
+      ↓
+get_zones(camera_id) → fetch matching safety zones
+      ↓
+apply_zone_scoped_compliance(persons, zones, w, h)
+    → ray-cast each worker's foot point into zones
+    → filter violations to only zone-required PPE
+      ↓
+check_zone_violations(persons, zones, w, h)
+    → generate zone-specific violation events
+      ↓
+for each violation:
+    generate_thumbnail(frame, bbox) → save JPEG crop
+    log_violation(...) → INSERT into violations table
+      ↓
+update_stats(total_persons, compliant_count)
+      ↓
+Return JSON: { detections, persons, compliance_rate, violations }
+      ↓
+Frontend draws bounding boxes on &lt;canvas&gt; overlay
+Frontend shows worker compliance cards in sidebar
+</code></pre>
+<h3>Video Detection</h3>
+<pre><code class="language-">
+User uploads video
+      ↓
+POST /api/detect/video → save file → create_video_job → return job_id
+      ↓
+Frontend opens WebSocket: /ws/video-stream/{job_id}
+Frontend starts video playback + requestAnimationFrame canvas loop
+      ↓
+Backend: cv2.VideoCapture(filepath)
+Backend: for each frame (sampled every N frames):
+    → same inference pipeline as image
+    → send JSON frame event over WebSocket
+      ↓
+Frontend: WebSocket onmessage → update latestFrameRef
+requestAnimationFrame loop reads latestFrameRef → redraws boxes on canvas
+      ↓
+Backend: send "complete" event with summary stats
+Frontend: setState('complete'), show summary bar
+</code></pre>
+<hr>
+<h2>10. Zone System — How It Works</h2>
+<p>Zones define <strong>physical areas</strong> on a camera frame with specific PPE requirements.</p>
+<h3>Drawing</h3>
+<li>User uploads a reference image in Zone Config (resizes canvas to match aspect ratio)</li>
+<li>User clicks to place polygon vertices; clicks near start point to close</li>
+<li>Normalized coordinates `(x/canvasW, y/canvasH)` are stored in the backend</li>
+<li>Zones are scoped to a **Camera / Site ID**</li>
+<h3>Enforcement</h3>
+<p>During detection:</p>
+<li>Each worker's bottom-center pixel `(cx, bottom_y)` is normalized → `(cx/W, bottom_y/H)`</li>
+<li>Ray-casting algorithm tests if that point is inside any zone polygon</li>
+<li>If inside a zone: only that zone's `required_ppe` items matter for compliance</li>
+<li>A worker missing a Mask in a "Hardhat-only zone" is **not** flagged for the Mask</li>
+<h3>Why Bottom-Center?</h3>
+<p>Using the foot position (bottom of person bounding box) rather than the center of the whole body prevents false zone assignments when a worker leans into a zone from outside it.</p>
+<hr>
+<h2>11. Configuration & Environment Variables</h2>
+<h3>Backend (`.env` or Docker environment)</h3>
+<table>
+<tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+<tr><td>`MODEL_PATH`</td><td>`../models/best.pt`</td><td>Path to YOLO `.pt` weights file</td></tr>
+<tr><td>`DATABASE_PATH`</td><td>`backend/ppe_compliance.db`</td><td>SQLite database path</td></tr>
+<tr><td>`UPLOAD_DIR`</td><td>`backend/uploads`</td><td>Video/image upload directory</td></tr>
+<tr><td>`THUMBNAIL_DIR`</td><td>`backend/thumbnails`</td><td>Violation crop directory</td></tr>
+<tr><td>`CORS_ORIGINS`</td><td>`http://localhost:5173,...`</td><td>Allowed frontend origins (comma-separated)</td></tr>
+</table>
+<h3>Frontend (`.env` or Docker build args)</h3>
+<table>
+<tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+<tr><td>`VITE_API_BASE`</td><td>`http://localhost:8000`</td><td>Backend HTTP URL</td></tr>
+<tr><td>`VITE_WS_BASE`</td><td>derived from `VITE_API_BASE`</td><td>Backend WebSocket URL</td></tr>
+</table>
+<hr>
+<h2>12. Running the Project</h2>
+<h3>Local Development</h3>
+<p><strong>Backend:</strong></p>
+<pre><code class="language-powershell">
+cd "PPE project\backend"
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+</code></pre>
+<ul>
+<li>API available at: <code>http://localhost:8000</code></li>
+<li>Swagger docs at: <code>http://localhost:8000/docs</code></li>
+</ul>
+<p><strong>Frontend</strong> (new terminal):</p>
+<pre><code class="language-powershell">
+cd "PPE project\frontend"
+npm install
+npm run dev
+</code></pre>
+<ul>
+<li>UI available at: <code>http://localhost:5173</code></li>
+</ul>
+<h3>Docker Compose (Recommended)</h3>
+<pre><code class="language-bash">
+docker compose up --build
+</code></pre>
+<ul>
+<li>Frontend: <code>http://localhost:5173</code></li>
+<li>Backend: <code>http://localhost:8000</code></li>
+<li>Data persisted in Docker volume <code>backend_data</code></li>
+</ul>
+<blockquote>[!NOTE]</blockquote>
+<blockquote>The frontend Docker container uses **Nginx** serving the Vite production build. WebSocket and API proxying is configured in `frontend/nginx.conf`.</blockquote>
+<hr>
+<h2>13. Complete REST API Reference</h2>
+<table>
+<tr><th>Method</th><th>Path</th><th>Description</th><th>Key Params</th></tr>
+<tr><td>GET</td><td>`/`</td><td>Health check</td><td>—</td></tr>
+<tr><td>POST</td><td>`/api/detect/image`</td><td>Detect PPE in image</td><td>`file` (multipart), `camera_id` (form)</td></tr>
+<tr><td>POST</td><td>`/api/detect/video`</td><td>Upload video for processing</td><td>`file` (multipart), `camera_id` (form)</td></tr>
+<tr><td>GET</td><td>`/api/detect/jobs`</td><td>List all video jobs</td><td>—</td></tr>
+<tr><td>GET</td><td>`/api/detect/jobs/pending`</td><td>List pending/processing jobs</td><td>—</td></tr>
+<tr><td>DELETE</td><td>`/api/detect/jobs/{job_id}`</td><td>Delete job + file</td><td>—</td></tr>
+<tr><td>WS</td><td>`/ws/video-stream/{job_id}`</td><td>WebSocket video stream</td><td>—</td></tr>
+<tr><td>POST</td><td>`/api/zones`</td><td>Create safety zone</td><td>Body: `ZoneCreate`</td></tr>
+<tr><td>GET</td><td>`/api/zones`</td><td>List zones</td><td>`?camera_id=` (optional)</td></tr>
+<tr><td>GET</td><td>`/api/zones/cameras`</td><td>List distinct camera IDs</td><td>—</td></tr>
+<tr><td>PUT</td><td>`/api/zones/{id}`</td><td>Update zone</td><td>Body: `ZoneUpdate`</td></tr>
+<tr><td>DELETE</td><td>`/api/zones/{id}`</td><td>Delete zone</td><td>—</td></tr>
+<tr><td>GET</td><td>`/api/violations`</td><td>List violations (paginated)</td><td>`page`, `page_size`, `date_from`, `date_to`, `class_name`, `zone_id`</td></tr>
+<tr><td>DELETE</td><td>`/api/violations/{id}`</td><td>Delete violation + thumbnail</td><td>—</td></tr>
+<tr><td>GET</td><td>`/api/violations/export`</td><td>Download violations CSV</td><td>—</td></tr>
+<tr><td>GET</td><td>`/api/compliance-summary`</td><td>Dashboard aggregate data</td><td>—</td></tr>
+<tr><td>GET</td><td>`/api/settings`</td><td>Get all settings</td><td>—</td></tr>
+<tr><td>PUT</td><td>`/api/settings`</td><td>Update settings</td><td>Body: `{key: value}` dict</td></tr>
+<tr><td>GET</td><td>`/thumbnails/{filename}`</td><td>Serve thumbnail image</td><td>—</td></tr>
+<tr><td>GET</td><td>`/uploads/{filename}`</td><td>Serve uploaded file</td><td>—</td></tr>
+</table>
+<hr>
+<h2>14. Key Design Decisions</h2>
+<h3>Why IoU + Center-Inside for PPE Association?</h3>
+<p>Plain IoU fails when a helmet box is small and a person box is large — the union is dominated by the person box, keeping IoU low even when the helmet is clearly on their head. Center-inside catches this case definitively.</p>
+<h3>Why Secondary NMS for Persons?</h3>
+<p>YOLO's global NMS can let two slightly-different person boxes survive for the same worker. If both survive, the system counts the same worker twice, inflating violation counts. The custom <code>nms_persons()</code> uses both IoU and containment to suppress these duplicates.</p>
+<h3>Why Zone-Scoped Compliance?</h3>
+<p>Without it, a worker in a "Hardhat-only" zone would be flagged as non-compliant for missing a Mask — even though masks aren't required there. The <code>apply_zone_scoped_compliance()</code> function ensures compliance is evaluated strictly against zone requirements.</p>
+<h3>Why Normalized Zone Coordinates?</h3>
+<p>Zone polygon points are stored as <code>(0–1)</code> fractions of the frame dimensions. This makes them resolution-independent — the same zone works regardless of whether the video is 720p or 1080p.</p>
+<h3>Why SQLite?</h3>
+<p>The project is designed as a standalone system that doesn't require an external database server. SQLite is embedded, zero-config, and more than sufficient for single-site deployment. The async <code>aiosqlite</code> wrapper ensures the FastAPI event loop isn't blocked.</p>
+<hr>
+<h2>15. Training Details</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Base model</td><td>YOLOv8n (nano)</td></tr>
+<tr><td>Classes</td><td>10</td></tr>
+<tr><td>Training config</td><td>`training/args.yaml`</td></tr>
+<tr><td>Dataset config</td><td>`training/data_subset.yaml`</td></tr>
+<tr><td>Best weights</td><td>`models/best.pt`</td></tr>
+<tr><td>Evaluation</td><td>`training/confusion_matrix.png`, `training/results.png`</td></tr>
+<tr><td>Metrics log</td><td>`training/results.csv`</td></tr>
+</table>
+<blockquote>[!TIP]</blockquote>
+<blockquote>The model has **weaker recall** on `NO-Hardhat` and `NO-Safety Vest`. The Settings page recommends lowering per-class thresholds for these violation classes to improve detection at the cost of slightly more false positives.</blockquote>
+<hr>
+<p><em>Documentation generated: September 28, 2026</em></p>
+</div>
+</body>
+</html>

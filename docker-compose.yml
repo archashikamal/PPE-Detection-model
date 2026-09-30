@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ppe-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173,http://localhost:80,http://127.0.0.1:5173}
+      - DATABASE_PATH=/app/ppe_compliance.db
+      - UPLOAD_DIR=/app/uploads
+      - THUMBNAIL_DIR=/app/thumbnails
+      - MODEL_PATH=/models/best.pt
+    volumes:
+      # Persistent storage for SQLite database, violation thumbnails, and uploads
+      - backend_data:/app
+      - ./models:/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        - VITE_API_BASE=${VITE_API_BASE:-http://localhost:8000}
+        - VITE_WS_BASE=${VITE_WS_BASE:-ws://localhost:8000}
+    container_name: ppe-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  backend_data:
+    driver: local

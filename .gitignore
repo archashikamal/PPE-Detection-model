@@ -1,0 +1,42 @@
+# ── Python (backend) ────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+venv/
+.venv/
+env/
+
+# ── Backend runtime data (recreated automatically, not source) ─────────────
+backend/ppe_compliance.db
+backend/thumbnails/*
+backend/uploads/*
+!backend/thumbnails/.gitkeep
+!backend/uploads/.gitkeep
+*.db
+*.sqlite3
+
+# ── Node / frontend ──────────────────────────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# ── Env / secrets ────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+frontend/.env.local
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# ── OS / editor cruft ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
